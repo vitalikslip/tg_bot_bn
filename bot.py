@@ -7,10 +7,12 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message
+from aiogram.types import Sticker
 
 from bt_tkn import TOKEN
 
 dp = Dispatcher()
+
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
@@ -18,6 +20,14 @@ async def command_start_handler(message: Message) -> None:
     This handler receives messages with `/start` command
     """
     await message.answer(f"Hello, {html.bold(message.from_user.full_name)}!")
+
+@dp.message()
+async def smile_answer(message: Sticker) -> None:
+    
+    try:
+        await message.answer("fsasf")
+    except TypeError:
+        await message.answer("sdaas")
 
 
 @dp.message()
@@ -33,6 +43,8 @@ async def echo_handler(message: Message) -> None:
     except TypeError:
         # But not all the types is supported to be copied so need to handle it
         await message.answer("Nice try!")
+
+
 
 
 async def main() -> None:
