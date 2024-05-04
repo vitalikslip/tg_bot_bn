@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 import threading
+import os
 
 #Libraries for Coinmarketcup
 from requests import Request, Session
@@ -17,7 +18,11 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram.types import Sticker
 
-from bt_tkn import TOKEN, CMC_API_KEY
+from dotenv import find_dotenv, load_dotenv
+
+load_dotenv(find_dotenv())
+
+UPDATES = ['message','edited_message']
 
 
 
@@ -28,7 +33,7 @@ parameters = {
 }
 headers = {
   'Accepts': 'application/json',
-  'X-CMC_PRO_API_KEY': CMC_API_KEY,
+  'X-CMC_PRO_API_KEY': f"{os.getenv('CMC_API_KEY')}",
 }
 
 session = Session()
@@ -42,7 +47,6 @@ def get_aptos_price():
         symbol = ((data['data'])['21794'])['symbol']
         price = ((((data['data'])['21794'])['quote'])['USD'])['price']
         format_price = format(price , '.3f')
-
         return (f'Price of {symbol} token is {format_price}')
     except (ConnectionError, Timeout, TooManyRedirects) as e:
         return e
@@ -69,10 +73,11 @@ async def echo_handler(message: Message) -> None:
     if message.text == '😂':
         await message.answer("STICKER MTFC")
         return None
-    
+
     try:
         # Send APT price
         await message.answer(get_aptos_price())
+        
     except TypeError:
         # But not all the types is supported to be copied so need to handle it
         await message.answer("Nice try!")
@@ -94,14 +99,16 @@ def price_checker():
 
 async def main() -> None:
     # Initialize Bot instance with default bot properties which will be passed to all API calls
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    bot = Bot(token=os.getenv('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     # And the run events dispatching
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, allowed_updates=UPDATES)
 
 
 
 if __name__ == "__main__":
+    print(type(os.getenv('CMC_API_KEY')))
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    price_checker()
+    #price_checker()
     asyncio.run(main())
+    
 
