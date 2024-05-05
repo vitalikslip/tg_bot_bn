@@ -1,114 +1,39 @@
 import asyncio
 import logging
 import sys
-import threading
 import os
-
-#Libraries for Coinmarketcup
-from requests import Request, Session
-from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
-import json
 
 
 #Libraries for tg bot
-from aiogram import Bot, Dispatcher, html
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
-from aiogram.types import Message
-from aiogram.types import Sticker
+from aiogram import Bot, Dispatcher, types
+
 
 from dotenv import find_dotenv, load_dotenv
+from handlers.users import user_router
+from command_list import private
 
 load_dotenv(find_dotenv())
 
 UPDATES = ['message','edited_message']
 
 
-
-url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
-parameters = {
-  'id':'21794',
-  'convert':'USD'
-}
-headers = {
-  'Accepts': 'application/json',
-  'X-CMC_PRO_API_KEY': f"{os.getenv('CMC_API_KEY')}",
-}
-
-session = Session()
-session.headers.update(headers)
-
-def get_aptos_price():
-    try:
-        response = session.get(url, params=parameters)
-        data = json.loads(response.text)
-
-        symbol = ((data['data'])['21794'])['symbol']
-        price = ((((data['data'])['21794'])['quote'])['USD'])['price']
-        format_price = format(price , '.3f')
-        return (f'Price of {symbol} token is {format_price}')
-    except (ConnectionError, Timeout, TooManyRedirects) as e:
-        return e
-
 dp = Dispatcher()
-
-
-@dp.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
-    """
-    This handler receives messages with `/start` command
-    """
-    await message.answer(f"Hello, {html.bold(message.from_user.full_name)}! Write any message to get APT price")
-
-
-
-@dp.message()
-async def echo_handler(message: Message) -> None:
-    """
-    Handler will forward receive a message back to the sender
-
-    By default, message handler will handle all message types (like a text, photo, sticker etc.)
-    """
-    if message.text == '😂':
-        await message.answer("STICKER MTFC")
-        return None
-
-    try:
-        # Send APT price
-        await message.answer(get_aptos_price())
-        
-    except TypeError:
-        # But not all the types is supported to be copied so need to handle it
-        await message.answer("Nice try!")
-
-
-
-@dp.message()
-async def smile_answer(message: Sticker) -> None:
-    
-    try:
-        await message.send_copy(chat_id=message.chat.id)
-    except TypeError:
-        await message.answer("Nice try!")
-
-def price_checker():
-    threading.Timer(10.0, price_checker).start()
-    get_aptos_price()
+dp.include_router(user_router)
 
 
 async def main() -> None:
     # Initialize Bot instance with default bot properties which will be passed to all API calls
-    bot = Bot(token=os.getenv('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    bot = Bot(token=os.getenv('TOKEN'))
     # And the run events dispatching
+    await bot.delete_webhook(drop_pending_updates=True)
+    await bot.set_my_commands(commands=private,scope=types.BotCommandScopeAllPrivateChats())
     await dp.start_polling(bot, allowed_updates=UPDATES)
 
 
 
 if __name__ == "__main__":
-    print(type(os.getenv('CMC_API_KEY')))
+
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    #price_checker()
-    asyncio.run(main())
+asyncio.run(main())
     
 

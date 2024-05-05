@@ -23,3 +23,6 @@ dist/
 
 #Токен Бота
 bt_tkn.py
+
+#Файлы vscode
+.vscode
