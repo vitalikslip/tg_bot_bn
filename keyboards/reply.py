@@ -20,16 +20,16 @@ delete_keyboard = ReplyKeyboardRemove()
 
 new_kbrd = ReplyKeyboardMarkup(
     keyboard=[
-    [
-        KeyboardButton(text="Start"),
-    ]
-]
+        [
+            KeyboardButton(text="Start"),
+        ],
+    ],
+    resize_keyboard=True,
 )
 
 start_keyboard_2 = ReplyKeyboardBuilder()
 
 start_keyboard_2.add(
-    KeyboardButton(text="Start"),
     KeyboardButton(text="Get APT Price"),
     KeyboardButton(text="Delete"),
 )
@@ -39,4 +39,4 @@ start_keyboard_3 = ReplyKeyboardBuilder()
 
 start_keyboard_3.attach(start_keyboard_2)
 
-start_keyboard_3.row(KeyboardButton(text="Callback"))
+start_keyboard_3.row(KeyboardButton(text="About"))
