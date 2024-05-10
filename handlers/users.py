@@ -1,9 +1,15 @@
 from aiogram import F, Router, types
 from aiogram.filters import CommandStart, Command, or_f
 from aiogram.utils.formatting import as_marked_section, Bold, as_list
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+
 
 from price_checker import get_aptos_price
 from keyboards import reply
+
+class Form(StatesGroup):
+    sign_in = State()
 
 
 user_router = Router()
@@ -42,8 +48,9 @@ async def kb_dlt(message: types.Message) -> None:
 
 @user_router.message(F.text.lower() == 'get apt price')
 @user_router.message(or_f(Command('APT','apt','Apt'), (F.text.lower() == 'apt')))
-async def price_handler(message: types.Message) -> None:
+async def price_handler(message: types.Message, state: FSMContext) -> None:
     # Send APT price
+    await state.set_state(Form.sign_in)
     try:
         await message.answer(get_aptos_price())      
     except TypeError:
