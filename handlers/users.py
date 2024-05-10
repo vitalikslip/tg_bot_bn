@@ -1,5 +1,6 @@
-from aiogram import F, Router, types, html
+from aiogram import F, Router, types
 from aiogram.filters import CommandStart, Command, or_f
+from aiogram.enums import ParseMode
 
 from price_checker import get_aptos_price
 from keyboards import reply
@@ -8,13 +9,25 @@ from keyboards import reply
 user_router = Router()
 
 
-@user_router.message(CommandStart())
+@user_router.message(or_f(CommandStart(), (F.text.lower() == 'start')))
 async def command_start_handler(message: types.Message) -> None:
     """
     This handler receives messages with `/start` command
     """
-    await message.answer(f"Hello, {message.from_user.full_name}! Write any message to get APT price",
-                          reply_markup=reply.start_keyboard)
+    await message.answer(f"Hello,<b> {message.from_user.full_name}!</b> Use the menu to get"
+                         f" APT price or write /apt command",
+                          reply_markup=reply.start_keyboard_3.as_markup(
+                              resize_keyboard=True,
+                              input_field_placeholder='What do you want?'  
+                          ))
+    
+
+@user_router.message(or_f(Command('delete'), (F.text.lower() == 'delete')))
+async def kb_dlt(message: types.Message) -> None:
+    try:
+        await message.answer("Deleted", reply_markup=reply.new_kbrd)
+    except TypeError:
+        await message.answer("Error")
 
 
 @user_router.message(F.text.lower() == 'get apt price')
@@ -22,27 +35,17 @@ async def command_start_handler(message: types.Message) -> None:
 async def price_handler(message: types.Message) -> None:
     try:
         # Send APT price
-        await message.answer(get_aptos_price())
-        
+        await message.answer(get_aptos_price())      
     except TypeError:
         # But not all the types is supported to be copied so need to handle it
         await message.answer("Error")
 
 
-
-@user_router.message(F.text)
-async def smile_answer(message: types.Sticker) -> None:
-    
+@user_router.message(F.text.lower() == 'about')
+async def smile_answer(message: types.Sticker) -> None:    
     try:
-        await message.send_copy(chat_id=message.chat.id)
+        await message.answer("This is the bot to get APT price "
+                             "use the Coinmarketcup API")
     except TypeError:
         await message.answer("Error")
 
-
-@user_router.message(F.sticker)
-async def smile_answer(message: types.Sticker) -> None:
-    
-    try:
-        await message.answer("emoji")
-    except TypeError:
-        await message.answer("Error")
