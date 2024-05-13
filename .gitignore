@@ -26,3 +26,5 @@ bt_tkn.py
 
 #Файлы vscode
 .vscode
+
+*.txt

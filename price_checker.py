@@ -21,14 +21,13 @@ headers = {
 session = Session()
 session.headers.update(headers)
 
-def get_aptos_price():
+async def get_aptos_price():
     try:
-        response = session.get(url, params=parameters)
-        data = json.loads(response.text)
-
-        symbol = ((data['data'])['21794'])['symbol']
-        price = ((((data['data'])['21794'])['quote'])['USD'])['price']
-        format_price = format(price , '.3f')
-        return (f'Price of {symbol} token is {format_price}')
+      response = session.get(url, params=parameters)
+      data = json.loads(response.text)
+      symbol = ((data['data'])['21794'])['symbol']
+      price = ((((data['data'])['21794'])['quote'])['USD'])['price']
+      format_price = format(price , '.3f')
+      return (f'Price of {symbol} token is {format_price}')
     except (ConnectionError, Timeout, TooManyRedirects) as e:
         return e
