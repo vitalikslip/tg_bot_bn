@@ -42,20 +42,19 @@ async def command_start_handler(message: types.Message) -> None:
 @user_router.message(or_f(Command('delete'), (F.text.lower() == 'delete')))
 async def kb_dlt(message: types.Message) -> None:
     """
-        Unsubscribe
+        Unsubscribe and delete keyboard
     """
     try:
-        await message.answer("Deleted", reply_markup=reply.new_kbrd)
-        with open('id.txt') as f:
-            lines = f.readlines()
+        await message.answer("You're sucsessfully unsubscribe", reply_markup=reply.new_kbrd)
+        with open('id.txt') as file:
+            lines = file.readlines()
 
-        id_to_del = str(message.chat.id)
-        pattern = re.compile(re.escape(id_to_del))
-        with open('id.txt', 'w') as f:
+        pattern = re.compile(re.escape(str(message.chat.id)))
+        with open('id.txt', 'w') as file:
             for line in lines:
                 result = pattern.search(line)
                 if result is None:
-                    f.write(line)
+                    file.write(line)
     except TypeError:
         await message.answer("Error")
 
@@ -63,14 +62,13 @@ async def kb_dlt(message: types.Message) -> None:
 @user_router.message(F.text.lower() == 'get apt price')
 @user_router.message(or_f(Command('apt'), (F.text.lower() == 'apt')))
 async def price_handler(message: types.Message, state: FSMContext) -> None:
-    file = open("id.txt", 'r')
-    content = file.read()
-    file.close()
-    file = open("id.txt", 'a')
-    if str(message.chat.id) not in content:
-        file.write(str(message.chat.id) + "\n")
-    file.close()
-    file = open("id.txt", 'r')
+
+    with open("id.txt", "r") as file:
+        content = file.read()
+    with open("id.txt", "a") as file:
+        if str(message.chat.id) not in content:
+            file.write(str(message.chat.id) + "\n")
+
 
     # Send APT price
     await state.set_state(Subscribe.sign_in)
