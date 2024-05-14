@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 
-from price_checker import get_aptos_price
+from price_checker import get_aptos_price, msg_sender
 from keyboards import reply
 
 class Subscribe(StatesGroup):
@@ -81,6 +81,7 @@ async def price_handler(message: types.Message, state: FSMContext) -> None:
 @user_router.message(F.text.lower() == 'about')
 async def smile_answer(message: types.Sticker) -> None:    
     try:
+        await msg_sender()
         await message.answer("This is the bot to get APT price "
                              "use Coinmarketcup API")
     except TypeError:

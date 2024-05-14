@@ -22,7 +22,7 @@ dp.include_router(user_router)
 
 async def main() -> None:
     # Initialize Bot instance with default bot properties which will be passed to all API calls
-    bot = Bot(token=os.getenv('TOKEN'), parse_mode="HTML")
+    bot = Bot(token=os.getenv('TOKEN'), parse_mode="HTML") 
     # And the run events dispatching
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands=private,scope=types.BotCommandScopeAllPrivateChats())
