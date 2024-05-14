@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 
-from price_checker import get_aptos_price, msg_sender
+from price_checker import get_aptos_price
 from keyboards import reply
 
 class Subscribe(StatesGroup):
@@ -56,7 +56,7 @@ async def kb_dlt(message: types.Message) -> None:
                 if result is None:
                     file.write(line)
     except TypeError:
-        await message.answer("Error")
+        await message.answer("Error3")
 
 
 @user_router.message(F.text.lower() == 'get apt price')
@@ -69,21 +69,19 @@ async def price_handler(message: types.Message, state: FSMContext) -> None:
         if str(message.chat.id) not in content:
             file.write(str(message.chat.id) + "\n")
 
-
     # Send APT price
     await state.set_state(Subscribe.sign_in)
     try:
-        await message.answer(await get_aptos_price())    
+        await get_aptos_price()   
     except TypeError:
-        await message.answer("Error")
+        await message.answer("Error1")
 
 
 @user_router.message(F.text.lower() == 'about')
 async def smile_answer(message: types.Sticker) -> None:    
     try:
-        await msg_sender()
         await message.answer("This is the bot to get APT price "
                              "use Coinmarketcup API")
     except TypeError:
-        await message.answer("Error")
+        await message.answer("Error2")
 
